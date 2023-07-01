@@ -1,10 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const uuid = require('uuid/v4');
+const dotenv = require('dotenv');
+const connectdb = require('./db.js');
+
+dotenv.config();
+
+connectdb();
 
 const app = express();
 
-const DUMMY_PRODUCTS = []; // not a database, just some in-memory storage for now
+// const DUMMY_PRODUCTS = []; // not a database, just some in-memory storage for now
 
 app.use(bodyParser.json());
 
@@ -36,7 +42,7 @@ app.post('/product', (req, res, next) => {
   }
 
   const createdProduct = {
-    id: uuid(),
+    // id: uuid(),
     title,
     price
   };
@@ -48,4 +54,5 @@ app.post('/product', (req, res, next) => {
     .json({ message: 'Created new product.', product: createdProduct });
 });
 
-app.listen(5000); // start Node + Express server on port 5000
+app.listen(5000);
+console.log( "started server on port 5000")
