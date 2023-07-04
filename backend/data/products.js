@@ -1,10 +1,10 @@
 const products = [
   {
-    name: "TV",
+    title: "TV",
     price: 14000,
   },
   {
-    name: "AC",
+    title: "AC",
     price: 41000,
   },
 ];
