@@ -16,27 +16,32 @@ const app = express();
 
 app.use(bodyParser.json());
 
-const addProductToDB = (createdProduct) => {
-  const newProduct = new Product(createdProduct);
-  newProduct.save().then(()=>{
-    console.log("product added to DB");
-  }).catch((error)=>{
-    console.log(error);
-  })
-};
+////////////////////////////////////////////////////////////BETTER TO WRITE BELOW 2 FUNC IN API ENDPONITS
+// const addProductToDB = (createdProduct) => {
+//   const newProduct = new Product(createdProduct);
+//   newProduct
+//     .save()
+//     .then(() => {
+//       console.log("product added to DB");
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// };
 
-const getProductsFromDB = async () => {
-  try {
-    const receivedData = await Product.find();
-    console.log("received products collection from DB");
-    //console.log(receivedData);
-    return receivedData;
-    // process.exit();
-  } catch (error) {
-    console.log(error);
-    process.exit(1);
-  }
-}
+// const getProductsFromDB = async () => {
+//   try {
+//     const receivedData = await Product.find();
+//     console.log("received products collection from DB");
+//     //console.log(receivedData);
+//     return receivedData;
+//     // process.exit();
+//   } catch (error) {
+//     console.log(error);
+//     process.exit(1);
+//   }
+// };
+//////////////////////////////////////////////////////////////
 
 // CORS Headers => Required for cross-origin/ cross-server communication
 app.use((req, res, next) => {
@@ -52,14 +57,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/products", (req, res, next) => {
-  const receivedData = getProductsFromDB();
-  receivedData.then((data)=> {
-    console.log(data);
-    res.status(200).json({ products:  data});
-  });
+// Get all products
+app.get("/products", async (req, res, next) => {
+  try {
+    const products = await Product.find();
+    console.log("Retrieved products from the database");
+    res.status(200).json({ products });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to fetch products" });
+  }
 });
 
+// Add a new product
 app.post("/product", (req, res, next) => {
   const { title, price } = req.body;
 
@@ -75,13 +85,23 @@ app.post("/product", (req, res, next) => {
     price,
   };
 
-  addProductToDB(createdProduct);
-  console.log(createdProduct);
-
-  res
-    .status(201)
-    .json({ message: "Created new product.", product: createdProduct });
+  const newProduct = new Product(createdProduct);
+  newProduct
+    .save()
+    .then(() => {
+      console.log("Product added to database");
+      res
+        .status(201)
+        .json({ message: "Created new product.", product: createdProduct });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: "Failed to add product" });
+    });
 });
 
-app.listen(5000);
-console.log("started server on port 5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
